@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>My bills</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial;
+}
+
+body {
+    background: #f2f3f5;
+    margin: 0;
+}
+
+header {
+    background: #202b42;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+header span {
+    color: #c49a38;
+}
+
+.container {
+    max-width: 600px;
+    margin: 25px auto;
+    padding: 10px;
+}
+
+.summary {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.card, .form, .bill {
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.card {
+    flex: 1;
+    min-width: 110px;
+    text-align: center;
+    border-top: 4px solid #c49a38;
+}
+
+h3 {
+    color: #202b42;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 7px 0;
+}
+
+button {
+    background: #202b42;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.delete {
+    background: #c94c4c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>My <span>Bills</span></h1>
+    <p>Manage Your Bills Easily!</p>
+</header>
+
+<div class="container">
+
+<div class="summary">
+
+    <div class="card">
+        <h3 id="total">0</h3>
+        Total Bills
+    </div>
+
+    <div class="card">
+        <h3 id="paid">₹0</h3>
+        Paid Amount
+    </div>
+
+    <div class="card">
+        <h3 id="pending">₹0</h3>
+        Pending Amount
+    </div>
+
+</div>
+
+<div class="form">
+    <h3>Add New Bill</h3>
+
+    <input type="text" id="name" placeholder="Bill Name">
+
+    <input type="number" id="amount" placeholder="Enter Amount">
+
+    <input type="date" id="date">
+
+    <select id="status">
+        <option value="Pending">Pending</option>
+        <option value="Paid">Paid</option>
+    </select>
+
+    <button onclick="addBill()">Add Bill</button>
+</div>
+
+<div id="billList"></div>
+
+</div>
+
+<script>
+
+let bills = JSON.parse(localStorage.getItem("bills")) || [];
+
+function addBill() {
+
+    let name = document.getElementById("name").value;
+    let amount = Number(document.getElementById("amount").value);
+    let date = document.getElementById("date").value;
+    let status = document.getElementById("status").value;
+
+    if(name == "" || amount <= 0 || date == "") {
+        alert("Please fill all details!");
+        return;
+    }
+
+    bills.push({name, amount, date, status});
+
+    localStorage.setItem("bills", JSON.stringify(bills));
+
+    document.getElementById("name").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("date").value = "";
+
+    showBills();
+}
+
+function showBills() {
+
+    let paid = 0, pending = 0;
+    let list = document.getElementById("billList");
+
+    list.innerHTML = "";
+
+    bills.forEach((bill, index) => {
+
+        if(bill.status == "Paid")
+            paid += bill.amount;
+        else
+            pending += bill.amount;
+
+        list.innerHTML += `
+        <div class="bill">
+            <h3>${bill.name}</h3>
+            <p>Amount: ₹${bill.amount}</p>
+            <p>Date: ${bill.date}</p>
+            <p>Status: ${bill.status}</p>
+            <button class="delete"
+            onclick="deleteBill(${index})">Delete</button>
+        </div>`;
+    });
+
+    document.getElementById("total").innerText = bills.length;
+    document.getElementById("paid").innerText = "₹" + paid;
+    document.getElementById("pending").innerText = "₹" + pending;
+
+    localStorage.setItem("bills", JSON.stringify(bills));
+}
+
+function deleteBill(index) {
+    bills.splice(index, 1);
+    showBills();
+}
+
+showBills();
+
+</script>
+
+</body>
+</html>
+
+
